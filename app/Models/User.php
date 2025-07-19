@@ -41,6 +41,11 @@ class User extends Authenticatable
         return $this->hasMany(OneTimePassword::class);
     }
 
+    public function courses(): HasMany
+    {
+        return $this->hasMany(Course::class);
+    }
+
     /**
      * Get the attributes that should be cast.
      *

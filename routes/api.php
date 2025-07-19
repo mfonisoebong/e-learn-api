@@ -16,4 +16,6 @@ Route::namespace('App\Http\Controllers')->group(function () {
         });
     });
 
+    Route::apiResource('categories', 'Courses\CategoriesController');
+
 });

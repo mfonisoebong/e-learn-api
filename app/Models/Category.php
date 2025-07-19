@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Category extends Model
@@ -24,5 +25,10 @@ class Category extends Model
             $slug = str()->slug($model->title);
             $model->slug = $model->where('slug', $slug)->exists() ? $slug.'-'.(int) $model->max('id') + 1 : $slug;
         });
+    }
+
+    public function courses(): HasMany
+    {
+        return $this->hasMany(Course::class);
     }
 }

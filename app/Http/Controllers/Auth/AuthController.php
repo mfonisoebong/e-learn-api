@@ -38,8 +38,42 @@ class AuthController extends Controller
             'token' => $user->createToken('auth_token')->plainTextToken
         ];
         $role = $user->role;
+        $this->createOtp($user, 'email_verification');
 
         return $this->success($data, "$role created successfully");
+    }
+
+    private function createOtp(User $user, string $type)
+    {
+        $otp = $user->otps()->create([]);
+        Mail::to($user->email)->send(new OtpMail($otp));
+    }
+
+    public function verifyEmail(Request $request)
+    {
+        $request->validate([
+            'code' => ['required', 'string', 'exists:one_time_passwords,code'],
+        ]);
+
+        $otp = $request->user()->otps->where('code', $request->code)->first();
+
+        if (!$otp || $otp->is_expired) {
+            return $this->failed(null, StatusCode::BadRequest->value, 'Invalid code or OTP has already expired');
+        }
+
+        $request->user()->update([
+            'email_verified_at' => now(),
+        ]);
+        $otp->delete();
+        return $this->success(null, 'Email verified successfully');
+    }
+
+    public function user(Request $request)
+    {
+        $user = $request->user();
+        $data = new ProfileResource($user);
+
+        return $this->success($data);
     }
 
     public function signIn(Request $request)
@@ -65,12 +99,10 @@ class AuthController extends Controller
         return $this->success($data, 'Sign in successful');
     }
 
-    public function user(Request $request)
+    public function logout(Request $request)
     {
-        $user = $request->user();
-        $data = new ProfileResource($user);
-
-        return $this->success($data);
+        $request->user()->currentAccessToken()->delete();
+        return $this->success(null, 'Logged out successfully');
     }
 
     public function sendPasswordReset(Request $request)
@@ -83,12 +115,6 @@ class AuthController extends Controller
         $this->createOtp($user, 'password_reset');
 
         $this->success(null, 'Password reset link has sent to your email');
-    }
-
-    private function createOtp(User $user, string $type)
-    {
-        $otp = $user->otps()->create([]);
-        Mail::to($user->email)->send(new OtpMail($otp));
     }
 
     public function resetPassword(Request $request)
@@ -109,7 +135,7 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
         ]);
         $otp->delete();
-        
+
         return $this->success(null, 'Password reset successfully');
     }
 }

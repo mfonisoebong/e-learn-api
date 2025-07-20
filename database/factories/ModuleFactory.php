@@ -18,7 +18,7 @@ class ModuleFactory extends Factory
             'description' => $this->faker->text(),
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
-            'course_id' => Course::factory(),
+            'course_id' => Course::inRandomOrder()->first()->id,
         ];
     }
 }

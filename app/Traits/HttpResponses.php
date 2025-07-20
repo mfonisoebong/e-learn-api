@@ -7,8 +7,6 @@ use Illuminate\Http\JsonResponse;
 
 trait HttpResponses
 {
-
-
     public function success($data, $message = 'Okay', $code = StatusCode::Success->value): JsonResponse
     {
         return response()->json([

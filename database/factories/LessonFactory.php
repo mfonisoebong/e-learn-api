@@ -16,11 +16,13 @@ class LessonFactory extends Factory
         return [
             'title' => $this->faker->word(),
             'duration' => $this->faker->word(),
-            'document' => $this->faker->word(),
+            'description' => $this->faker->text(),
+            'content' => $this->faker->paragraph(),
+            'document' => 'courses/sample.pdf',
             'video' => $this->faker->word(),
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
-            'module_id' => Module::factory(),
+            'module_id' => Module::inRandomOrder()->first()->id
         ];
     }
 }

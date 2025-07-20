@@ -19,8 +19,8 @@ class ReviewFactory extends Factory
             'rating' => $this->faker->randomNumber(),
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
-            'user_id' => User::factory(),
-            'course_id' => Course::factory(),
+            'user_id' => User::inRandomOrder()->first()->id,
+            'course_id' => Course::inRandomOrder()->first()->id,
         ];
     }
 }

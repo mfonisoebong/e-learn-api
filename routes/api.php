@@ -21,4 +21,8 @@ Route::namespace('App\Http\Controllers')->group(function () {
 
     Route::apiResource('categories', 'Courses\CategoriesController');
 
+    Route::prefix('courses')->group(function () {
+        Route::get('discover', 'Courses\CoursesController@discover');
+    });
+
 });

@@ -3,12 +3,11 @@
 namespace App\Traits;
 
 use Error;
-use Illuminate\Support\Str;
 
 trait UploadFiles
 {
 
-    public function uploadFiles($documentFiles, $folder, $max = 4): array
+    public function uploadFiles($documentFiles, $folder, $max = 4, $storage = 'public'): array
     {
         $documents = [];
 
@@ -17,32 +16,34 @@ trait UploadFiles
         }
 
         foreach ($documentFiles as $file) {
-            $uuid = Str::uuid();
-
-            $fileName = time().'_'.$uuid.'_'.$file->getClientOriginalName();
-            $file->storeAs('public/'.$folder, $fileName);
-            $documents[] = "{$folder}/{$fileName}";
+            $path = $file->store($folder, $storage);
+            $documents[] = $path;
         }
 
         return $documents;
     }
 
-    public function uploadFile($file, $folder): string
+    public function uploadFile($file, $folder, $storage = 'public')
     {
-        $uuid = Str::uuid();
-        $fileName = time().'_'.$uuid.'_'.$file->getClientOriginalName();
-
-        $file->storeAs('public/'.$folder, $fileName);
-        return "{$folder}/{$fileName}";
+        return $file->store($folder, $storage);
     }
 
-    public function getFilePath(?string $path): ?string
+    public function getFilePath($path): ?string
     {
-
         if (!$path) {
             return null;
         }
-
         return asset('storage/'.$path);
+    }
+
+    public function getFilePaths($paths): array
+    {
+        if (!$paths) {
+            return [];
+        }
+
+        return array_map(function ($path) {
+            return asset('storage/'.$path);
+        }, $paths);
     }
 }

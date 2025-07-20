@@ -3,6 +3,7 @@
 namespace App\Http\Resources\Courses;
 
 use App\Models\Course;
+use App\Models\Lesson;
 use App\Traits\UploadFiles;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -14,6 +15,11 @@ class CourseResource extends JsonResource
 
     public function toArray(Request $request): array
     {
+        $lessonsCount = 0;
+        foreach ($this->modules as $module) {
+            $lessonsCount += Lesson::where('module_id', $module->id)->count();
+        }
+        
         return [
             'id' => $this->id,
             'title' => $this->title,
@@ -30,7 +36,7 @@ class CourseResource extends JsonResource
                 'email' => $this->user->email,
                 'avatar' => $this->getFilePath($this->user->avatar),
             ],
-            'lessons' => $this->modules()->withCount('lessons')->sum('lessons_count'),
+            'lessons' => $lessonsCount,
             'category' => $this->category_id ? new CategoryResource($this->whenLoaded('category')) : null,
             'created_at' => $this->created_at->format('Y-m-d'),
             'updated_at' => $this->updated_at->format('Y-m-d'),

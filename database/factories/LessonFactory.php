@@ -15,7 +15,7 @@ class LessonFactory extends Factory
     {
         return [
             'title' => $this->faker->word(),
-            'duration' => $this->faker->word(),
+            'duration_in_minutes' => $this->faker->randomElement([34, 30, 45, 70]),
             'description' => $this->faker->text(),
             'content' => $this->faker->paragraph(),
             'document' => 'courses/sample.pdf',

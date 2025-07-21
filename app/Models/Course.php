@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -32,6 +33,22 @@ class Course extends Model
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
+    }
+
+    public function scopeFilter(Builder $builder)
+    {
+        $builder->when(request('search'), function (Builder $query) {
+            $query->where('title', 'like', '%'.request('search').'%')
+                ->orWhere('description', 'like', '%'.request('search').'%')
+                ->orWhere('slug', 'like', '%'.request('search').'%')
+                ->orWhereHas('category', function ($query) {
+                    $query->where('title', 'like', '%'.request('search').'%');
+                });
+        });
+
+        $builder->when(request('category_id'), function (Builder $query) {
+            $query->where('category_id', request('category_id'));
+        });
     }
 
     public function modules(): HasMany

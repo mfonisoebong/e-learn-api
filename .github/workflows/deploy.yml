@@ -1,4 +1,4 @@
-name: Outside API Deployment
+name: E-learn API Deployment
 
 on:
   push:

@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::namespace('App\Http\Controllers')->group(function () {
 
+    Route::get('/', 'Misc\HealthCheckController');
+
     Route::prefix('auth')->group(function () {
         Route::post('sign-in', 'Auth\AuthController@signIn');
         Route::post('sign-up', 'Auth\AuthController@signup');

@@ -21,21 +21,29 @@ class ModulePolicy
 
     public function create(User $user): bool
     {
+        return $user->role === 'teacher';
     }
 
     public function update(User $user, Module $module): bool
     {
+        return (int) $user->id === (int) $module->course->user_id;
     }
 
     public function delete(User $user, Module $module): bool
     {
+        return (int) $user->id === (int) $module->course->user_id;
+
     }
 
     public function restore(User $user, Module $module): bool
     {
+        return (int) $user->id === (int) $module->course->user_id;
+
     }
 
     public function forceDelete(User $user, Module $module): bool
     {
+        return (int) $user->id === (int) $module->course->user_id;
+
     }
 }

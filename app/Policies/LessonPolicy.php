@@ -21,21 +21,26 @@ class LessonPolicy
 
     public function create(User $user): bool
     {
+        return $user->role === 'teacher';
     }
 
     public function update(User $user, Lesson $lesson): bool
     {
+        return (int) $user->id === (int) $lesson->module->course->user_id;
     }
 
     public function delete(User $user, Lesson $lesson): bool
     {
+        return (int) $user->id === (int) $lesson->module->course->user_id;
     }
 
     public function restore(User $user, Lesson $lesson): bool
     {
+        return (int) $user->id === (int) $lesson->module->course->user_id;
     }
 
     public function forceDelete(User $user, Lesson $lesson): bool
     {
+        return (int) $user->id === (int) $lesson->module->course->user_id;
     }
 }

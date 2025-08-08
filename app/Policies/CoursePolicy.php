@@ -21,21 +21,29 @@ class CoursePolicy
 
     public function create(User $user): bool
     {
+        return $user->role === 'teacher';
     }
 
     public function update(User $user, Course $course): bool
     {
+        return (int) $user->id === (int) $course->user_id;
     }
 
     public function delete(User $user, Course $course): bool
     {
+        return (int) $user->id === (int) $course->user_id;
+
     }
 
     public function restore(User $user, Course $course): bool
     {
+        return (int) $user->id === (int) $course->user_id;
+
     }
 
     public function forceDelete(User $user, Course $course): bool
     {
+        return (int) $user->id === (int) $course->user_id;
+
     }
 }

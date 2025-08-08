@@ -13,7 +13,7 @@ class Lesson extends Model
 
     protected $fillable = [
         'title',
-        'duration',
+        'duration_in_minutes',
         'document',
         'module_id',
         'video',
@@ -46,6 +46,6 @@ class Lesson extends Model
         }
 
         $documentExtension = strtolower(pathinfo($this->document, PATHINFO_EXTENSION));
-        return $this->documentMap['.'.$documentExtension] ?? null;
+        return $this->documentMap['.' . $documentExtension] ?? null;
     }
 }

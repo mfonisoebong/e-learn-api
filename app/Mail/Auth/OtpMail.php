@@ -20,9 +20,9 @@ class OtpMail extends Mailable
 
     public function envelope(): Envelope
     {
-        $subject = config('app.name').$this->otp->type === 'email_verification' ? ' - Email Verification' : ' - Password Reset';
+        $subject = $this->otp->type === 'email_verification' ? ' - Email Verification' : ' - Password Reset';
         return new Envelope(
-            subject: $subject,
+            subject: config('app.name').$subject,
         );
     }
 

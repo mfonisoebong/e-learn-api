@@ -13,9 +13,9 @@ Route::
                 Route::post('send-password-reset', 'Auth\AuthController@sendPasswordReset')
                     ->middleware('throttle:1,2');
                 Route::post('reset-password', 'Auth\AuthController@resetPassword');
-                Route::post('verify-email', 'Auth\AuthController@verifyEmail');
-
+                
                 Route::middleware('auth:sanctum')->group(function () {
+                    Route::post('verify-email', 'Auth\AuthController@verifyEmail');
                     Route::get('user', 'Auth\AuthController@user');
                     Route::post('logout', 'Auth\AuthController@logout');
                 });

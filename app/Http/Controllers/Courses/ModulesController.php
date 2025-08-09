@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Courses;
 
 use App\Enums\StatusCode;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Courses\ModuleDisplayResource;
 use App\Models\Module;
 use App\Traits\HttpResponses;
 use Illuminate\Http\Request;
@@ -23,7 +24,7 @@ class ModulesController extends Controller
         ]);
 
         $module = Module::create($data);
-        return $this->success($module, 'Module created', StatusCode::Continue ->value);
+        return $this->success(new ModuleDisplayResource($module), 'Module created', StatusCode::Continue ->value);
     }
 
     public function update(Request $request, Module $module)
@@ -35,7 +36,7 @@ class ModulesController extends Controller
         ]);
 
         $module->update($data);
-        return $this->success($module, 'Module updated', StatusCode::Continue ->value);
+        return $this->success(new ModuleDisplayResource($module), 'Module updated', StatusCode::Continue ->value);
     }
 
     public function destroy(Module $module)
@@ -45,10 +46,18 @@ class ModulesController extends Controller
         return $this->success(null, 'Module deleted');
     }
 
-    public function restore(Module $module)
+    public function restore($moduleId)
     {
+        $module = Module::withTrashed()->findOrFail($moduleId);
+
         Gate::authorize('restore', $module);
+
+        if (!$module->trashed()) {
+            return $this->failed(null, StatusCode::BadRequest->value, 'Module is not deleted');
+        }
+
         $module->restore();
-        return $this->success($module, 'Module restored');
+
+        return $this->success(null, 'Module restored successfully');
     }
 }

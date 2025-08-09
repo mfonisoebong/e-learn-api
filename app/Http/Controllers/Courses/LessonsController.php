@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Courses;
 
+use App\Enums\StatusCode;
 use App\Http\Controllers\Controller;
 use App\Models\Lesson;
 use App\Traits\HttpResponses;
@@ -20,14 +21,16 @@ class LessonsController extends Controller
         $data = $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'duration_in_minutes' => ['required', 'integer'],
-            'document' => ['required', 'file', 'mimes:pdf,doc,docx,pptx,ppt,mp3,rar,zip,xlsx,xls'],
+            'document' => ['nullable', 'file', 'mimes:pdf,doc,docx,pptx,ppt,mp3,rar,zip,xlsx,xls'],
             'module_id' => ['required', 'exists:modules,id'],
-            'video' => ['required', 'file', 'mimes:mp4,avi,mov'],
+            'video' => ['nullable', 'file', 'mimes:mp4,avi,mov'],
             'description' => ['required', 'string'],
             'content' => ['required', 'string'],
         ]);
-        $document = $this->uploadFile($request->file('document'), 'lessons/documents');
-        $video = $this->uploadFile($request->file('video'), 'lessons/videos');
+        $document = $request->file('document') ?
+            $this->uploadFile($request->file('document'), 'lessons/documents') : null;
+        $video = $request->file('video') ?
+            $this->uploadFile($request->file('video'), 'lessons/videos') : null;
 
         Lesson::create([
             ...$data,
@@ -73,4 +76,20 @@ class LessonsController extends Controller
 
         return $this->success(null, 'Lesson deleted successfully');
     }
+
+    public function restore($lessonId)
+    {
+        $lesson = Lesson::withTrashed()->findOrFail($lessonId);
+
+        Gate::authorize('restore', $lesson);
+
+        if (!$lesson->trashed()) {
+            return $this->failed(null, StatusCode::BadRequest->value, 'Lesson is not deleted');
+        }
+
+        $lesson->restore();
+
+        return $this->success(null, 'Lesson restored successfully');
+    }
+
 }

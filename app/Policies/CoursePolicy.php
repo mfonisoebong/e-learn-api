@@ -12,11 +12,12 @@ class CoursePolicy
 
     public function viewAny(User $user): bool
     {
-
+        return true; // Allow all authenticated users to view courses
     }
 
     public function view(User $user, Course $course): bool
     {
+        return true; // Allow all authenticated users to view individual courses
     }
 
     public function create(User $user): bool

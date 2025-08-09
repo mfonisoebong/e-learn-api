@@ -64,6 +64,7 @@ class CoursesController extends Controller
             ...$data,
             'featured_image' => $featuredImage
         ]);
+        $course['featured_image'] = $this->getFilePath($featuredImage);
 
         return $this->success($course, 'Course created successfully', StatusCode::Continue ->value);
     }
@@ -94,6 +95,7 @@ class CoursesController extends Controller
             ...$data,
             'featured_image' => $featuredImage
         ]);
+        $course['featured_image'] = $this->getFilePath($featuredImage);
 
         return $this->success($course, 'Course updated successfully');
     }
@@ -107,12 +109,30 @@ class CoursesController extends Controller
         return $this->success(null, 'Course deleted successfully');
     }
 
-    public function restore(Course $course)
+    public function restore($courseId)
     {
+        $course = Course::withTrashed()->findOrFail($courseId);
+
         Gate::authorize('restore', $course);
+
+        if (!$course->trashed()) {
+            return $this->failed(null, StatusCode::BadRequest->value, 'Course is not deleted');
+        }
 
         $course->restore();
 
-        return $this->success(null, 'Course restored successfully');
+        return $this->success(new CourseResource($course), 'Course restored successfully');
+    }
+
+    public function forceDelete($courseId)
+    {
+        // Find the course including soft deleted ones
+        $course = Course::withTrashed()->findOrFail($courseId);
+
+        Gate::authorize('forceDelete', $course);
+
+        $course->forceDelete();
+
+        return $this->success(null, 'Course permanently deleted');
     }
 }

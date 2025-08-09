@@ -31,27 +31,27 @@ Route::
                 Route::get('{course}/modules', 'Courses\CoursesController@modules');
                 Route::middleware(['auth:sanctum', EmailVerified::class])->group(function () {
                     Route::post('', 'Courses\CoursesController@store');
-                    Route::post('update', 'Courses\CoursesController@update');
+                    Route::post('{course}', 'Courses\CoursesController@update');
                     Route::delete('{course}', 'Courses\CoursesController@destroy');
-                    Route::put('restore', 'Courses\CoursesController@restore');
+                    Route::put('{course}/restore', 'Courses\CoursesController@restore');
                 });
             });
 
             Route::prefix('modules')->group(function () {
                 Route::middleware(['auth:sanctum', EmailVerified::class])->group(function () {
                     Route::post('', 'Courses\ModulesController@store');
-                    Route::put('{module}', 'Courses\ModulesController@update');
+                    Route::patch('{module}', 'Courses\ModulesController@update');
                     Route::delete('{module}', 'Courses\ModulesController@destroy');
-                    Route::post('{module}/restore', 'Courses\ModulesController@restore');
+                    Route::put('{module}/restore', 'Courses\ModulesController@restore');
                 });
             });
 
             Route::prefix('lessons')->group(function () {
                 Route::middleware(['auth:sanctum', EmailVerified::class])->group(function () {
                     Route::post('', 'Courses\LessonsController@store');
-                    Route::put('{lesson}', 'Courses\LessonsController@update');
+                    Route::post('{lesson}', 'Courses\LessonsController@update');
                     Route::delete('{lesson}', 'Courses\LessonsController@destroy');
-                    Route::post('{lesson}/restore', 'Courses\LessonsController@restore');
+                    Route::put('{lesson}/restore', 'Courses\LessonsController@restore');
                 });
             });
 

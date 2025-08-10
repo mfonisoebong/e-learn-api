@@ -76,6 +76,12 @@ class AuthController extends Controller
         return $this->success($data);
     }
 
+    public function resendEmailVerification(Request $request)
+    {
+        $this->createOtp($request->user(), 'email_verification');
+        return $this->success(null, 'Email verification link has sent to your email');
+    }
+
     public function signIn(Request $request)
     {
         $request->validate([

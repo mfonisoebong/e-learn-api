@@ -22,7 +22,7 @@ class OtpMail extends Mailable
     {
         $subject = $this->otp->type === 'email_verification' ? ' - Email Verification' : ' - Password Reset';
         return new Envelope(
-            subject: config('app.name').$subject,
+            subject: config('app.name') . $subject,
         );
     }
 

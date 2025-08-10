@@ -28,7 +28,7 @@
         style="padding-top: 15px; width: 100%; padding-bottom: 15px; background-color: #1a1a1a; display: flex; align-items: center; justify-content: space-between">
         <div style="padding-left: 10px;">
             <img style="margin-left: auto; margin-right: auto; display: block" src="{{asset('images/logo.png')}}"
-                width="40" height="40" alt="{{ config('app.name') }}">
+                width="140" height="40" alt="{{ config('app.name') }}">
         </div>
         <div>
             @foreach ($categories as $category)

@@ -12,12 +12,15 @@ class CoursePolicy
 
     public function viewAny(User $user): bool
     {
-        return true; // Allow all authenticated users to view courses
+        return $user->role === 'teacher';
     }
 
     public function view(User $user, Course $course): bool
     {
-        return true; // Allow all authenticated users to view individual courses
+        $isInstructor = (int)$user->id === (int)$course->user_id;
+        $isEnrolled = $course->enrollments()->where('user_id', $user->id)->exists();
+
+        return $isInstructor || $isEnrolled;
     }
 
     public function create(User $user): bool
@@ -27,24 +30,24 @@ class CoursePolicy
 
     public function update(User $user, Course $course): bool
     {
-        return (int) $user->id === (int) $course->user_id;
+        return (int)$user->id === (int)$course->user_id;
     }
 
     public function delete(User $user, Course $course): bool
     {
-        return (int) $user->id === (int) $course->user_id;
+        return (int)$user->id === (int)$course->user_id;
 
     }
 
     public function restore(User $user, Course $course): bool
     {
-        return (int) $user->id === (int) $course->user_id;
+        return (int)$user->id === (int)$course->user_id;
 
     }
 
     public function forceDelete(User $user, Course $course): bool
     {
-        return (int) $user->id === (int) $course->user_id;
+        return (int)$user->id === (int)$course->user_id;
 
     }
 }

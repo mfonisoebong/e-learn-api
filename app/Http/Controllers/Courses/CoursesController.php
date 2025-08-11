@@ -28,6 +28,10 @@ class CoursesController extends Controller
 
     public function show(Course $course)
     {
+
+//        if (!Gate::allows('view', [Course::class, $course])) {
+//            return $this->failed(null, StatusCode::BadRequest->value, 'You have to enroll in this course to view it');
+//        }
         $data = new CourseResource($course);
         return $this->success($data);
     }
@@ -66,7 +70,34 @@ class CoursesController extends Controller
         ]);
         $course['featured_image'] = $this->getFilePath($featuredImage);
 
-        return $this->success($course, 'Course created successfully', StatusCode::Continue ->value);
+        return $this->success($course, 'Course created successfully', StatusCode::Continue->value);
+    }
+
+    public function updateProgress(Request $request, Course $course)
+    {
+        $request->validate([
+            'action' => ['required', 'in:increase,decrease'],
+        ]);
+
+        $enrollment = $request->user()->enrollments()->where('course_id', $course->id)->first();
+        if (!$enrollment) {
+            return $this->failed(null, StatusCode::BadRequest->value, 'You are not enrolled in this course');
+        }
+
+        if ($enrollment->is_completed) {
+            return $this->failed(null, StatusCode::BadRequest->value, 'You have already completed this course');
+        }
+
+        $lessons = $course->lessons_count;
+        $completedLessons = $request->action === 'increase' ? $enrollment->progress + 1 : $enrollment->progress - 1;
+        $division = $lessons ? $completedLessons / $lessons : 0;
+        $percent = $division * 100;
+        $enrollment->update([
+            'progress' => $percent,
+            'completed_lessons' => $completedLessons,
+        ]);
+
+        return $this->success(null, 'Progress updated successfully');
     }
 
     public function update(Request $request, Course $course)
@@ -122,6 +153,33 @@ class CoursesController extends Controller
         $course->restore();
 
         return $this->success(new CourseResource($course), 'Course restored successfully');
+    }
+
+    public function viewTeacherCourses(Request $request)
+    {
+        Gate::authorize('viewAny', Course::class);
+
+        $courses = $request->user()->courses()->filter()->paginate(10);
+        $list = CourseResource::collection($courses);
+        $data = $this->paginatedData($courses, $list);
+
+        return $this->success($data);
+    }
+
+    public function enroll(Course $course, Request $request)
+    {
+        $prevEnrollment = $request->user()->enrollments()->where('course_id', $course->id)->first();
+
+        if ($prevEnrollment) {
+            return $this->failed(null, StatusCode::BadRequest->value, 'You are already enrolled in this course');
+        }
+
+        $request->user()->enrollments()->create([
+            'course_id' => $course->id,
+            'progress' => 0
+        ]);
+
+        return $this->success(null, 'Course enrolled successfully');
     }
 
     public function forceDelete($courseId)

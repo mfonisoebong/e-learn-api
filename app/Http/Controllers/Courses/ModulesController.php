@@ -4,15 +4,17 @@ namespace App\Http\Controllers\Courses;
 
 use App\Enums\StatusCode;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Courses\LessonResource;
 use App\Http\Resources\Courses\ModuleDisplayResource;
 use App\Models\Module;
 use App\Traits\HttpResponses;
+use App\Traits\Pagination;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 
 class ModulesController extends Controller
 {
-    use HttpResponses;
+    use HttpResponses, Pagination;
 
     public function store(Request $request)
     {
@@ -24,7 +26,7 @@ class ModulesController extends Controller
         ]);
 
         $module = Module::create($data);
-        return $this->success(new ModuleDisplayResource($module), 'Module created', StatusCode::Continue ->value);
+        return $this->success(new ModuleDisplayResource($module), 'Module created', StatusCode::Continue->value);
     }
 
     public function update(Request $request, Module $module)
@@ -36,7 +38,16 @@ class ModulesController extends Controller
         ]);
 
         $module->update($data);
-        return $this->success(new ModuleDisplayResource($module), 'Module updated', StatusCode::Continue ->value);
+        return $this->success(new ModuleDisplayResource($module), 'Module updated', StatusCode::Continue->value);
+    }
+
+    public function viewLessons(Module $module)
+    {
+        $lessons = $module->lessons()->paginate(10);
+        $list = LessonResource::collection($lessons);
+        $data = $this->paginatedData($lessons, $list);
+        
+        return $this->success($data);
     }
 
     public function destroy(Module $module)

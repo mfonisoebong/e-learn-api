@@ -31,7 +31,7 @@ class Course extends Model
 
         static::creating(function ($model) {
             $slug = str()->slug($model->title);
-            $model->slug = $model->where('slug', $slug)->exists() ? $slug . '-' . (int) $model->max('id') + 1 : $slug;
+            $model->slug = $model->where('slug', $slug)->exists() ? $slug . '-' . (int)$model->max('id') + 1 : $slug;
         });
 
 
@@ -72,6 +72,20 @@ class Course extends Model
     public function reviews(): HasMany
     {
         return $this->hasMany(Review::class);
+    }
+
+    public function getLessonsCountAttribute(): int
+    {
+        $lessonsCount = 0;
+        foreach ($this->modules as $module) {
+            $lessonsCount += Lesson::where('module_id', $module->id)->count();
+        }
+        return $lessonsCount;
+    }
+
+    public function enrollments(): HasMany
+    {
+        return $this->hasMany(Enrollment::class);
     }
 
     protected function casts(): array

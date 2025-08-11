@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Gate;
 
 class LessonsController extends Controller
 {
-    use UploadFiles, HttpResponses;
+    use UploadFiles, HttpResponses, UploadFiles;
 
     public function store(Request $request)
     {
@@ -39,6 +39,27 @@ class LessonsController extends Controller
         ]);
 
         return $this->success(null, 'Lesson created successfully');
+    }
+
+    public function show(Lesson $lesson)
+    {
+        if (!Gate::allows('view', [Lesson::class, $lesson])) {
+            return $this->failed(null, StatusCode::BadRequest->value, 'You have to enroll in this course to view this lesson');
+        }
+        $data = [
+            'id' => (string)$lesson->id,
+            'title' => $lesson->title,
+            'description' => strlen($lesson->description) > 45 ? substr($lesson->description, 0,
+                    45) . '...' : $lesson->description,
+            'duration_in_minutes' => formatDuration((int)$lesson->duration_in_minutes),
+            'updated_at' => $lesson->updated_at->format('Y-m-d'),
+            'document_type' => $lesson->document_type,
+            'video' => $lesson->video ? $this->getFilePath($lesson->video) : null,
+            'document' => $lesson->document ? $this->getFilePath($lesson->document) : null,
+            'content' => $lesson->content,
+        ];
+
+        return $this->success($data, 'Lesson retrieved successfully');
     }
 
     public function update(Request $request, Lesson $lesson)

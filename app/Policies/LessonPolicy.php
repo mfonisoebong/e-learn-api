@@ -17,6 +17,10 @@ class LessonPolicy
 
     public function view(User $user, Lesson $lesson): bool
     {
+        $isInstructor = (int)$user->id === (int)$lesson->module->course->user_id;
+        $isEnrolled = $lesson->module->course->enrollments()->where('user_id', $user->id)->exists();
+
+        return $isInstructor || $isEnrolled;
     }
 
     public function create(User $user): bool
@@ -26,21 +30,21 @@ class LessonPolicy
 
     public function update(User $user, Lesson $lesson): bool
     {
-        return (int) $user->id === (int) $lesson->module->course->user_id;
+        return (int)$user->id === (int)$lesson->module->course->user_id;
     }
 
     public function delete(User $user, Lesson $lesson): bool
     {
-        return (int) $user->id === (int) $lesson->module->course->user_id;
+        return (int)$user->id === (int)$lesson->module->course->user_id;
     }
 
     public function restore(User $user, Lesson $lesson): bool
     {
-        return (int) $user->id === (int) $lesson->module->course->user_id;
+        return (int)$user->id === (int)$lesson->module->course->user_id;
     }
 
     public function forceDelete(User $user, Lesson $lesson): bool
     {
-        return (int) $user->id === (int) $lesson->module->course->user_id;
+        return (int)$user->id === (int)$lesson->module->course->user_id;
     }
 }

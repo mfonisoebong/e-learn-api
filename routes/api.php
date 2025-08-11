@@ -25,35 +25,34 @@ namespace('App\Http\Controllers')->group(function () {
     });
 
     Route::apiResource('categories', 'Courses\CategoriesController');
-
-    Route::prefix('courses')->group(function () {
-        Route::get('discover', 'Courses\CoursesController@discover');
-        Route::get('{course}', 'Courses\CoursesController@show');
-        Route::get('{course}/modules', 'Courses\CoursesController@modules');
-        Route::middleware(['auth:sanctum', EmailVerified::class])->group(function () {
+    Route::middleware(['auth:sanctum', EmailVerified::class])->group(function () {
+        Route::prefix('courses')->group(function () {
+            Route::get('discover', 'Courses\CoursesController@discover');
+            Route::get('{course}/modules', 'Courses\CoursesController@modules');
             Route::post('', 'Courses\CoursesController@store');
+            Route::get('teacher', 'Courses\CoursesController@viewTeacherCourses');
+            Route::get('{course}', 'Courses\CoursesController@show');
             Route::post('{course}', 'Courses\CoursesController@update');
+            Route::post('{course}/enroll', 'Courses\CoursesController@enroll');
             Route::delete('{course}', 'Courses\CoursesController@destroy');
             Route::put('{course}/restore', 'Courses\CoursesController@restore');
+            Route::put('{course}/update-progress', 'Courses\CoursesController@updateProgress');
         });
-    });
-
-    Route::prefix('modules')->group(function () {
-        Route::middleware(['auth:sanctum', EmailVerified::class])->group(function () {
+        Route::prefix('modules')->group(function () {
             Route::post('', 'Courses\ModulesController@store');
             Route::patch('{module}', 'Courses\ModulesController@update');
+            Route::get('{module}/lessons', 'Courses\ModulesController@viewLessons');
             Route::delete('{module}', 'Courses\ModulesController@destroy');
             Route::put('{module}/restore', 'Courses\ModulesController@restore');
         });
-    });
-
-    Route::prefix('lessons')->group(function () {
-        Route::middleware(['auth:sanctum', EmailVerified::class])->group(function () {
+        Route::prefix('lessons')->group(function () {
             Route::post('', 'Courses\LessonsController@store');
+            Route::get('{lesson}', 'Courses\LessonsController@show');
             Route::post('{lesson}', 'Courses\LessonsController@update');
             Route::delete('{lesson}', 'Courses\LessonsController@destroy');
             Route::put('{lesson}/restore', 'Courses\LessonsController@restore');
         });
     });
+
 
 });

@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Courses\CourseResource;
 use App\Http\Resources\Courses\ModuleDisplayResource;
 use App\Models\Course;
+use App\Notifications\Courses\EnrollmentCompleted;
 use App\Traits\HttpResponses;
 use App\Traits\Pagination;
 use App\Traits\UploadFiles;
@@ -76,7 +77,7 @@ class CoursesController extends Controller
     public function updateProgress(Request $request, Course $course)
     {
         $request->validate([
-            'action' => ['required', 'in:increase,decrease'],
+            'lessons_completed' => ['required', 'integer'],
         ]);
 
         $enrollment = $request->user()->enrollments()->where('course_id', $course->id)->first();
@@ -88,16 +89,29 @@ class CoursesController extends Controller
             return $this->failed(null, StatusCode::BadRequest->value, 'You have already completed this course');
         }
 
-        $lessons = $course->lessons_count;
-        $completedLessons = $request->action === 'increase' ? $enrollment->progress + 1 : $enrollment->progress - 1;
-        $division = $lessons ? $completedLessons / $lessons : 0;
+        $totalLessons = $course->lessons_count;
+
+        if ($totalLessons < $request->lessons_completed) {
+            return $this->failed(null, StatusCode::BadRequest->value, 'You have completed lessons than the total lessons');
+        }
+
+        $division = $totalLessons ? $request->lessons_completed / $totalLessons : 0;
         $percent = $division * 100;
+
         $enrollment->update([
             'progress' => $percent,
-            'completed_lessons' => $completedLessons,
+            'completed_lessons' => $request->lessons_completed,
         ]);
 
-        return $this->success(null, 'Progress updated successfully');
+        if ($percent >= 100) {
+            $request->user()->increment('points', 20);
+            $request->user()->notify(new EnrollmentCompleted($enrollment));
+        }
+
+        return $this->success([
+            'progress' => number_format($percent, 1) . '%',
+            'completed_lessons' => $request->lessons_completed,
+        ], 'Progress updated successfully');
     }
 
     public function update(Request $request, Course $course)

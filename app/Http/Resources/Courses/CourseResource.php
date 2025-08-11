@@ -25,7 +25,7 @@ class CourseResource extends JsonResource
 
         if (!$course) {
             return [
-                'id' => $this->id,
+                'id' => (string)$this->id,
                 'title' => $this->title,
                 'slug' => $this->slug,
                 'featured_image' => $this->getFilePath($this->featured_image),
@@ -51,7 +51,7 @@ class CourseResource extends JsonResource
 
 
         return [
-            'id' => $this->id,
+            'id' => (string)$this->id,
             'title' => $this->title,
             'slug' => $this->slug,
             'lessons' => $this->lessons_count,

@@ -20,7 +20,9 @@ class CourseResource extends JsonResource
             'enrollments' => $this->enrollments()->count()
         ] : [];
         $progress = $this->enrollments()->where('user_id', $request->user()->id)->exists() ?
-            ['progress' => $this->enrollments()->where('user_id', $request->user()->id)->first()->progress] : [];
+            [
+                'progress' => $this->enrollments()->where('user_id', $request->user()->id)->first()->progress . '%'
+            ] : [];
 
 
         if (!$course) {

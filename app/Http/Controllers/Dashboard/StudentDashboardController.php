@@ -71,4 +71,22 @@ class StudentDashboardController extends Controller
 
         return $this->success($data);
     }
+
+    public function badge(Request $request)
+    {
+        $user = $request->user();
+
+        if ($user->points <= 100) {
+            $badge = 'Beginner';
+        } else if ($user->points > 100 && $user->points <= 200) {
+            $badge = 'Intermediate';
+        } else {
+            $badge = 'Advanced learner';
+        }
+
+        return $this->success([
+            'badge' => $badge
+        ]);
+
+    }
 }

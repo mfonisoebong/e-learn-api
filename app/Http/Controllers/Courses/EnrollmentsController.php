@@ -18,7 +18,11 @@ class EnrollmentsController extends Controller
         $completed = $request->user()->enrollments()->where('progress', '>=', 100)->count();
         $pending = $request->user()->enrollments()->where('progress', '<', 100)->count();
 
-        return $this->success(compact('all', 'completed', 'pending'));
+        return $this->success([
+            'all' => $all,
+            'completed' => $completed,
+            'pending' => $pending,
+        ]);
     }
 
     public function studentsEnrollments(Request $request)

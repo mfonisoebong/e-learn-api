@@ -60,6 +60,7 @@ namespace('App\Http\Controllers')->group(function () {
 
         Route::prefix('dashboard/student')->group(function () {
             Route::get('overview', 'Dashboard\StudentDashboardController@overview');
+            Route::get('leaderboard', 'Dashboard\StudentDashboardController@leaderboard');
             Route::get('recent-activities', 'Dashboard\StudentDashboardController@recentActivities');
             Route::get('my-courses/overview', 'Dashboard\StudentDashboardController@myCoursesOverview');
         });

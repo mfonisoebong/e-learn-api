@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Courses\CourseResource;
+use App\Http\Resources\Dashboard\LeaderboardItemResource;
 use App\Http\Resources\NotificationResource;
 use App\Models\Notification;
+use App\Models\User;
 use App\Traits\HttpResponses;
 use App\Traits\Pagination;
 use Illuminate\Http\Request;
@@ -54,6 +56,18 @@ class StudentDashboardController extends Controller
         $notifications = Notification::where('notifiable_id', $request->user()->id)->paginate(10);
         $list = NotificationResource::collection($notifications);
         $data = $this->paginatedData($notifications, $list);
+
+        return $this->success($data);
+    }
+
+    public function leaderboard()
+    {
+        $leaderboard = User::where('role', 'student')
+            ->filter()
+            ->orderBy('points', 'desc')
+            ->paginate(10);
+        $list = LeaderboardItemResource::collection($leaderboard);
+        $data = $this->paginatedData($leaderboard, $list);
 
         return $this->success($data);
     }

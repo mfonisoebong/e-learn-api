@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
@@ -43,6 +44,13 @@ class User extends Authenticatable
     public function otps(): HasMany
     {
         return $this->hasMany(OneTimePassword::class);
+    }
+
+    public function scopeFilter(Builder $builder)
+    {
+        $builder->when(request('search'), function ($query, $search) {
+            $query->where('full_name', 'like', '%' . $search . '%');
+        });
     }
 
     public function courses(): HasMany

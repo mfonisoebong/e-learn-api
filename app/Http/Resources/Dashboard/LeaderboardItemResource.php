@@ -11,18 +11,17 @@ class LeaderboardItemResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
-        $completedLessons = $this->enrollments()->sum('completed_lessons');
-        $completedEnrollments = $this->enrollments()->where('progress', '>=', 100)->count();
-        $totalEnrollments = $this->enrollments()->count();
-        $completionRate = $totalEnrollments ? ($completedEnrollments / $totalEnrollments) * 100 : 0;
+
+        $totalLessons = $this->course->lessons_count;
+        $completedLessons = $this->completed_lessons;
+        $completionRatePercent = $totalLessons ? ($completedLessons / $totalLessons) * 100 : 0;
+
         return [
             'id' => (string)$this->id,
-            'full_name' => $this->full_name,
-            'email' => $this->email,
-            'role' => $this->role,
+            'full_name' => $this->user->full_name,
+            'completed_lessons' => $completedLessons,
             'points' => $this->points,
-            'lessons_completed' => $completedLessons,
-            'completion_rate' => number_format($completionRate, 1) . '%',
+            'completion_rate' => number_format($completionRatePercent, 2) . '%',
         ];
     }
 }

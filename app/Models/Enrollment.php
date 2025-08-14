@@ -15,7 +15,8 @@ class Enrollment extends Model
         'progress',
         'user_id',
         'course_id',
-        'completed_lessons'
+        'completed_lessons',
+        'points'
     ];
 
     public function scopeFilter(Builder $builder)
@@ -28,6 +29,11 @@ class Enrollment extends Model
             if ($status === 'pending') {
                 $query->where('progress', '<', '100');
             }
+        });
+        $builder->when(request('search'), function (Builder $query) {
+            $query->whereHas('user', function ($query) {
+                $query->where('full_name', 'like', '%' . request('search') . '%');
+            });
         });
     }
 

@@ -6,8 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Courses\CourseResource;
 use App\Http\Resources\Dashboard\LeaderboardItemResource;
 use App\Http\Resources\NotificationResource;
+use App\Models\Course;
 use App\Models\Notification;
-use App\Models\User;
 use App\Traits\HttpResponses;
 use App\Traits\Pagination;
 use Illuminate\Http\Request;
@@ -60,12 +60,11 @@ class StudentDashboardController extends Controller
         return $this->success($data);
     }
 
-    public function leaderboard()
+    public function leaderboard(Course $course)
     {
-        $leaderboard = User::where('role', 'student')
-            ->filter()
-            ->orderBy('points', 'desc')
-            ->paginate(10);
+
+        $leaderboard = $course->enrollments()
+            ->orderBy('points', 'desc')->paginate(10);
         $list = LeaderboardItemResource::collection($leaderboard);
         $data = $this->paginatedData($leaderboard, $list);
 

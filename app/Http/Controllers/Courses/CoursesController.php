@@ -101,6 +101,9 @@ class CoursesController extends Controller
         $enrollment->update([
             'progress' => $percent,
             'completed_lessons' => $request->lessons_completed,
+            'points' => $request->lessons_completed > $enrollment->completed_lessons ?
+                (float)$enrollment->points + 20 :
+                (float)$enrollment->points,
         ]);
 
         if ($percent >= 100) {

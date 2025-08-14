@@ -46,6 +46,13 @@ class LessonsController extends Controller
         if (!Gate::allows('view', [Lesson::class, $lesson])) {
             return $this->failed(null, StatusCode::BadRequest->value, 'You have to enroll in this course to view this lesson');
         }
+
+        $prevLesson = Lesson::where('module_id', $lesson->module_id)
+            ->where('id', '<', $lesson->id)
+            ->orderBy('id', 'desc')->first();
+        $nextLesson = Lesson::where('module_id', $lesson->module_id)
+            ->where('id', '>', $lesson->id)
+            ->orderBy('id')->first();
         $data = [
             'id' => (string)$lesson->id,
             'title' => $lesson->title,
@@ -57,6 +64,8 @@ class LessonsController extends Controller
             'video' => $lesson->video ? $this->getFilePath($lesson->video) : null,
             'document' => $lesson->document ? $this->getFilePath($lesson->document) : null,
             'content' => $lesson->content,
+            'prev_lesson_id' => $prevLesson?->id,
+            'next_lesson_id' => $nextLesson?->id,
         ];
 
         return $this->success($data, 'Lesson retrieved successfully');

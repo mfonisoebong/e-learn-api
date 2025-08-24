@@ -20,7 +20,8 @@ class CoursesController extends Controller
 
     public function discover()
     {
-        $courses = Course::latest()->filter()->paginate(10);
+        $courses = Course::latest()->filter()->where('status', 'published')
+            ->paginate(10);
         $list = CourseResource::collection($courses);
         $data = $this->paginatedData($courses, $list);
 
@@ -30,9 +31,9 @@ class CoursesController extends Controller
     public function show(Course $course)
     {
 
-//        if (!Gate::allows('view', [Course::class, $course])) {
-//            return $this->failed(null, StatusCode::BadRequest->value, 'You have to enroll in this course to view it');
-//        }
+        if (!Gate::allows('view', [Course::class, $course])) {
+            return $this->failed(null, StatusCode::BadRequest->value, 'You have to enroll in this course to view it or the course is not published');
+        }
         $data = new CourseResource($course);
         return $this->success($data);
     }
@@ -60,7 +61,8 @@ class CoursesController extends Controller
             'requirements' => ['array'],
             'requirements.*' => ['required', 'string'],
             'learning_objectives' => ['array'],
-            'learning_objectives.*' => ['required', 'string']
+            'learning_objectives.*' => ['required', 'string'],
+            'status' => ['sometimes', 'string', 'in:draft,published,archived']
         ]);
 
         $featuredImage = $this->uploadFile($request->file('featured_image'), 'courses/featured_images');
@@ -71,11 +73,12 @@ class CoursesController extends Controller
         ]);
         $course['featured_image'] = $this->getFilePath($featuredImage);
 
-        return $this->success($course, 'Course created successfully', StatusCode::Continue->value);
+        return $this->success($course, 'Course created successfully', StatusCode::Continue ->value);
     }
 
     public function updateProgress(Request $request, Course $course)
     {
+
         $request->validate([
             'lessons_completed' => ['required', 'integer'],
         ]);
@@ -84,6 +87,8 @@ class CoursesController extends Controller
         if (!$enrollment) {
             return $this->failed(null, StatusCode::BadRequest->value, 'You are not enrolled in this course');
         }
+        Gate::authorize('update', $enrollment);
+
 
         if ($enrollment->is_completed) {
             return $this->failed(null, StatusCode::BadRequest->value, 'You have already completed this course');
@@ -102,8 +107,8 @@ class CoursesController extends Controller
             'progress' => $percent,
             'completed_lessons' => $request->lessons_completed,
             'points' => $request->lessons_completed > $enrollment->completed_lessons ?
-                (float)$enrollment->points + 20 :
-                (float)$enrollment->points,
+                (float) $enrollment->points + 20 :
+                (float) $enrollment->points,
         ]);
 
         if ($percent >= 100) {
@@ -131,7 +136,8 @@ class CoursesController extends Controller
             'requirements' => ['sometimes', 'array'],
             'requirements.*' => ['required', 'string'],
             'learning_objectives' => ['sometimes', 'array'],
-            'learning_objectives.*' => ['required', 'string']
+            'learning_objectives.*' => ['required', 'string'],
+            'status' => ['sometimes', 'string', 'in:draft,published,archived']
         ]);
 
         $featuredImage = $request->file('featured_image') ?

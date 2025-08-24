@@ -23,6 +23,7 @@ class Course extends Model
         'category_id',
         'requirements',
         'learning_objectives',
+        'status'
     ];
 
     protected static function boot()
@@ -31,7 +32,7 @@ class Course extends Model
 
         static::creating(function ($model) {
             $slug = str()->slug($model->title);
-            $model->slug = $model->where('slug', $slug)->exists() ? $slug . '-' . (int)$model->max('id') + 1 : $slug;
+            $model->slug = $model->where('slug', $slug)->exists() ? $slug . '-' . (int) $model->max('id') + 1 : $slug;
         });
 
 

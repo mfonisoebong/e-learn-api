@@ -25,6 +25,8 @@ class EnrollmentPolicy
 
     public function update(User $user, Enrollment $enrollment): bool
     {
+        $course = $enrollment->course;
+        return $course->status === 'published';
     }
 
     public function delete(User $user, Enrollment $enrollment): bool
